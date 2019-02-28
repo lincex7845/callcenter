@@ -1,4 +1,4 @@
-package com.mera.callcenter;
+package com.mera.callcenter.entities;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,7 +18,7 @@ public class Employee implements Runnable {
     private ConcurrentLinkedQueue<Call> pendingCalls;
     private ConcurrentLinkedDeque<Call> answeredCalls;
 
-    private Employee(EmployeeType type, UUID id) {
+    public Employee(EmployeeType type, UUID id) {
         this.id = id;
         this.type = type;
         this.status = EmployeeStatus.AVAILABLE;
@@ -26,19 +26,8 @@ public class Employee implements Runnable {
         this.answeredCalls = new ConcurrentLinkedDeque<>();
     }
 
-    public static Employee buildManager() {
-        return new Employee(EmployeeType.MANAGER, UUID.randomUUID());
-    }
 
-    public static Employee buildSupervisor() {
-        return new Employee(EmployeeType.SUPERVISOR, UUID.randomUUID());
-    }
-
-    public static Employee buildOperator() {
-        return new Employee(EmployeeType.OPERATOR, UUID.randomUUID());
-    }
-
-    public synchronized EmployeeStatus getStatus() {
+    public EmployeeStatus getStatus() {
         return status;
     }
 
@@ -46,7 +35,7 @@ public class Employee implements Runnable {
         return type;
     }
 
-    public synchronized ConcurrentLinkedQueue<Call> getPendingCalls() {
+    public ConcurrentLinkedQueue<Call> getPendingCalls() {
         return pendingCalls;
     }
 
