@@ -1,12 +1,17 @@
-package com.mera.callcenter.entities;
+package com.mera.callcenter;
 
+import com.mera.callcenter.entities.Call;
+import com.mera.callcenter.entities.Employee;
+import com.mera.callcenter.entities.EmployeeType;
 import org.jboss.logging.Logger;
 
 import java.util.*;
 
-public class EmployeeFactory {
+import static com.mera.callcenter.entities.Call.MIN_DURATION;
 
-    private static final Logger LOGGER = Logger.getLogger(EmployeeFactory.class);
+public class CallCenterFactory {
+
+    private static final Logger LOGGER = Logger.getLogger(CallCenterFactory.class);
 
     public static Employee buildManager() {
         return new Employee(EmployeeType.MANAGER, UUID.randomUUID());
@@ -38,7 +43,7 @@ public class EmployeeFactory {
         );
     }
 
-    private static Employee buildRandomEmployee(){
+    public static Employee buildRandomEmployee(){
         Random rand = new Random();
         int index = rand.nextInt(3);
         EmployeeType type = EmployeeType.values()[index];
@@ -58,5 +63,19 @@ public class EmployeeFactory {
                 break;
         }
         return e;
+    }
+
+    public static Call buildRandomCall(){
+        Random rand = new Random();
+        long duration = (long)rand.nextInt(6) + MIN_DURATION;
+        return new Call(duration);
+    }
+
+    public static List<Call> buildRandomCalls(int numberOfCalls){
+        List<Call> calls = new ArrayList<>();
+        for(int i = 0; i < numberOfCalls; i++){
+            calls.add(buildRandomCall());
+        }
+        return calls;
     }
 }

@@ -1,6 +1,5 @@
 package com.mera.callcenter.entities;
 
-import java.util.Random;
 import java.util.UUID;
 
 public class Call {
@@ -24,12 +23,6 @@ public class Call {
 
     public void setDuration(long duration) {
         this.duration = duration;
-    }
-
-    public static Call buildRandomCall(){
-        Random rand = new Random();
-        long duration = (long)rand.nextInt(6) + MIN_DURATION;
-        return new Call(duration);
     }
 
     @Override

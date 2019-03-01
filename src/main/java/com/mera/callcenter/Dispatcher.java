@@ -3,7 +3,6 @@ package com.mera.callcenter;
 import com.mera.callcenter.businesslogic.HandleCallStrategy;
 import com.mera.callcenter.entities.Call;
 import com.mera.callcenter.entities.Employee;
-import com.mera.callcenter.entities.EmployeeFactory;
 import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
@@ -15,15 +14,15 @@ import java.util.stream.Collectors;
 public class Dispatcher implements HandleCallStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class);
-    private static final int MAX_NUMBER_CALLS = 10;
+    public static final int MAX_NUMBER_CALLS = 10;
 
-    private synchronized static void dispatchCall(Call call,List<Employee> employees, ConcurrentLinkedQueue<Call> callsOnHold){
+    public synchronized static void dispatchCall(Call call,List<Employee> employees, ConcurrentLinkedQueue<Call> callsOnHold){
         HandleCallStrategy.assignIncomingCall(call, employees, callsOnHold);
     }
 
     public static void main(String[] args) {
 
-        final List<Employee> employees = EmployeeFactory.buildBasicHierarchyEmployees();
+        final List<Employee> employees = CallCenterFactory.buildBasicHierarchyEmployees();
         final ConcurrentLinkedQueue<Call> callsOnHold = new ConcurrentLinkedQueue<>();
 
         final ExecutorService callsExecutorService = Executors.newFixedThreadPool(MAX_NUMBER_CALLS);
@@ -41,7 +40,7 @@ public class Dispatcher implements HandleCallStrategy {
 
             for (int i = 0; i < MAX_NUMBER_CALLS; i++) {
                 Callable<Boolean> task = () -> {
-                    Call c = Call.buildRandomCall();
+                    Call c = CallCenterFactory.buildRandomCall();
                     LOGGER.debug("Incoming " + c);
                     dispatchCall(c, employees, callsOnHold);
                     return true;
