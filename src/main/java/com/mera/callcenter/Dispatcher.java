@@ -1,7 +1,7 @@
 package com.mera.callcenter;
 
+import com.mera.callcenter.businesslogic.HandleCallStrategy;
 import com.mera.callcenter.entities.Call;
-import com.mera.callcenter.entities.Dispatcher;
 import com.mera.callcenter.entities.Employee;
 import com.mera.callcenter.entities.EmployeeFactory;
 import org.jboss.logging.Logger;
@@ -11,17 +11,30 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-public class CallCenterRunner {
 
-    public static final int MAX_NUMBER_CALLS = 10;
-    private static final Logger LOGGER = Logger.getLogger(CallCenterRunner.class);
+public class Dispatcher implements HandleCallStrategy {
+
+    private static final Logger LOGGER = Logger.getLogger(Dispatcher.class);
+    private static final int MAX_NUMBER_CALLS = 10;
+
+    private synchronized static void dispatchCall(Call call,List<Employee> employees, ConcurrentLinkedQueue<Call> callsOnHold){
+        HandleCallStrategy.assignIncomingCall(call, employees, callsOnHold);
+    }
 
     public static void main(String[] args) {
+
         final List<Employee> employees = EmployeeFactory.buildBasicHierarchyEmployees();
-        final ExecutorService callsExecutorService = Executors.newFixedThreadPool(10);
+        final ConcurrentLinkedQueue<Call> callsOnHold = new ConcurrentLinkedQueue<>();
+
+        final ExecutorService callsExecutorService = Executors.newFixedThreadPool(MAX_NUMBER_CALLS);
         final ExecutorService employeesExecutorService = Executors.newFixedThreadPool(employees.size());
         final ExecutorService dispatcherExecutorService = Executors.newSingleThreadExecutor();
-        final Dispatcher dispatcher = new Dispatcher(employees);
+
+        Runnable handleWaitingCalls = () -> {
+            while(true){
+                HandleCallStrategy.assignOnHoldCalls(employees, callsOnHold);
+            }
+        };
 
         try {
             final List<Callable<Boolean>> tasks = new ArrayList<>();
@@ -29,14 +42,14 @@ public class CallCenterRunner {
             for (int i = 0; i < MAX_NUMBER_CALLS; i++) {
                 Callable<Boolean> task = () -> {
                     Call c = Call.buildRandomCall();
-                    //LOGGER.info("call created " + c);
-                    dispatcher.dispatchCall(c);
+                    LOGGER.debug("Incoming " + c);
+                    dispatchCall(c, employees, callsOnHold);
                     return true;
                 };
                 tasks.add(task);
             }
 
-            dispatcherExecutorService.execute(dispatcher);
+            dispatcherExecutorService.execute(handleWaitingCalls);
 
             List<Future<Boolean>> futures = callsExecutorService.invokeAll(tasks);
 
@@ -44,7 +57,6 @@ public class CallCenterRunner {
                     .stream()
                     .map(Executors::callable)
                     .collect(Collectors.toList()));
-
 
 
             for(Future<Boolean> f : futures)
@@ -57,7 +69,6 @@ public class CallCenterRunner {
             LOGGER.error("An error occurred dispatching the calls", e);
         }
         finally {
-            LOGGER.info("finally...");
             dispatcherExecutorService.shutdown();
             employeesExecutorService.shutdown();
             callsExecutorService.shutdown();
