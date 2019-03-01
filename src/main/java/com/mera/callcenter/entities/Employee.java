@@ -42,12 +42,9 @@ public class Employee implements Runnable {
 
     public synchronized void assignCall(Call c) {
         if(status.equals(EmployeeStatus.AVAILABLE)){
-
-            //LOGGER.info(toString());
             this.pendingCalls.add(c);
             this.setEmployeestatus(EmployeeStatus.ON_CALL);
-            //LOGGER.info("Assigning call " + c + " to " + this.type + " - " + this.id);
-            //LOGGER.info(toString());
+            LOGGER.debug("Assigning call " + c + " to " + this.type + " - " + this.id);
         }
     }
 
@@ -63,18 +60,15 @@ public class Employee implements Runnable {
             if (maybeCall.isPresent() && this.getStatus().equals(EmployeeStatus.ON_CALL)) {
                 Call c = maybeCall.get();
                 this.setEmployeestatus(EmployeeStatus.BUSY);
-                //LOGGER.info(toString());
-                //LOGGER.info(String.format("%s %s is answering the call %s", this.type, this.id, c.getId()));
                 try {
                     TimeUnit.SECONDS.sleep(c.getDuration());
                 } catch (InterruptedException e) {
                     LOGGER.error(String.format("An error occurred during the call attended by %s %s", this.type, this.id), e);
                 } finally {
-                    //LOGGER.info(String.format("The call %s last %d s", c.getId(), c.getDuration()));
+                    LOGGER.debug(String.format("The call %s last %d s", c.getId(), c.getDuration()));
                     this.pendingCalls.poll();
                     this.answeredCalls.add(c);
                     this.setEmployeestatus(EmployeeStatus.AVAILABLE);
-                    //LOGGER.info(toString());
                 }
             }
         }
@@ -82,6 +76,6 @@ public class Employee implements Runnable {
 
     @Override
     public String toString(){
-        return String.format("Employee[ID: %s, Type: %s, Status: %s, Answered: %s, Assigned: %s])", id, type, status, answeredCalls.size(), pendingCalls.size());
+        return String.format("Employee [ID: %s, Type: %s, Status: %s, Answered: %s, Assigned: %s])", id, type, status, answeredCalls.size(), pendingCalls.size());
     }
 }

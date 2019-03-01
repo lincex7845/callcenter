@@ -39,28 +39,28 @@ public interface HandleCallStrategy {
     }
 
     static void assignIncomingCall(Call call, List<Employee> employees, ConcurrentLinkedQueue<Call> callsOnHold){
-        //LOGGER.info("Looking for available employees to assign the call");
+        LOGGER.debug("Looking for available employees to assign the call");
         Optional<Employee> availableOperator = findAvailableOperators(employees);
         if(availableOperator.isPresent()){
-           // LOGGER.info("Assigning call to an available operator");
+            LOGGER.debug("Assigning call to an available operator");
             availableOperator.get().assignCall(call);
         }
         else{
-            //LOGGER.info("There is not available operators; looking for an available supervisor");
+            LOGGER.debug("There is not available operators; looking for an available supervisor");
             Optional<Employee> availableSupervisor = findAvailableSupervisors(employees);
             if(availableSupervisor.isPresent()){
-                //LOGGER.info("Assigning call to an available supervisor");
+                LOGGER.debug("Assigning call to an available supervisor");
                 availableSupervisor.get().assignCall(call);
             }
             else{
-                //LOGGER.info("There is not available supervisors; looking for an available manager");
+                LOGGER.debug("There is not available supervisors; looking for an available manager");
                 Optional<Employee> availableManager = findAvailableManagers(employees);
                 if(availableManager.isPresent()){
-                    //LOGGER.info("Assigning call to an available manager");
+                    LOGGER.debug("Assigning call to an available manager");
                     availableManager.get().assignCall(call);
                 }
                 else{
-                    //LOGGER.info("There is not available employees; putting the call " + call + " on-hold");
+                    LOGGER.debug("There is not available employees; putting the call " + call + " on-hold");
                     callsOnHold.add(call);
                 }
             }
@@ -69,7 +69,7 @@ public interface HandleCallStrategy {
 
     static void assignOnHoldCalls(List<Employee> employees, ConcurrentLinkedQueue<Call> callsOnHold){
         if(!callsOnHold.isEmpty()){
-            //LOGGER.info("Looking for available employees to assign the on-hold call ");
+            LOGGER.debug("Looking for available employees to assign the on-hold call ");
             Call c = callsOnHold.poll();
             assignIncomingCall(c, employees, callsOnHold);
         }
