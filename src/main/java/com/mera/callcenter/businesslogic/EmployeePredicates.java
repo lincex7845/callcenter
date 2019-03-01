@@ -1,4 +1,4 @@
-package com.mera.callcenter.domain;
+package com.mera.callcenter.businesslogic;
 
 import com.mera.callcenter.entities.Employee;
 import com.mera.callcenter.entities.EmployeeStatus;
