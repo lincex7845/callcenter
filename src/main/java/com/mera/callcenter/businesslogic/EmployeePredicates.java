@@ -6,6 +6,9 @@ import com.mera.callcenter.entities.EmployeeType;
 
 import java.util.function.Predicate;
 
+/**
+ * A set of predicates to determine the type and status of an employee
+ */
 public interface EmployeePredicates {
 
     static Predicate<Employee> isAvailable(){

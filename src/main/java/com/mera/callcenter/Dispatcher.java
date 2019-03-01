@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * Main class, it is charge to assign incoming and waiting calls to the employees.
+ */
 public class Dispatcher implements HandleCallStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class);

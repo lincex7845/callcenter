@@ -24,7 +24,9 @@ public class DispatcherTest {
     private List<Call> callList;
     private ConcurrentLinkedQueue<Call> waitingCalls;
 
-
+    /**
+     * To set up need objects per each test
+     */
     @Before
     public void before(){
         employeeList = CallCenterFactory.buildBasicHierarchyEmployees();
@@ -34,6 +36,15 @@ public class DispatcherTest {
         waitingCalls = new ConcurrentLinkedQueue<>();
     }
 
+    /**
+     * Helper method to create concurrent calls
+     * Per each thread the method {@link com.mera.callcenter.Dispatcher#dispatchCall(Call, List, ConcurrentLinkedQueue)}
+     * is invoked
+     * @param calls a list of calls
+     * @param employees a list of employees
+     * @param waitingCalls a thread-safe queue to handle waiting calls
+     * @return a list of threads to invoke concurrent calls
+     */
     private static List<Callable<Boolean>> createTasks(List<Call> calls,
                                                        List<Employee> employees,
                                                        ConcurrentLinkedQueue<Call> waitingCalls){
@@ -49,7 +60,11 @@ public class DispatcherTest {
         return tasks;
     }
 
-    @Test
+    /**
+     * Unit test to demonstrate how the system performs with 10
+     * concurrent calls. All of the employees are available
+     */
+    @Test()
     public void test10ConcurrentCalls(){
         LOGGER.info("starting test10ConcurrentCalls");
         final List<Callable<Boolean>> tasks = createTasks(callList, employeeList, waitingCalls);
@@ -75,6 +90,10 @@ public class DispatcherTest {
         }
     }
 
+    /**
+     * Unit test to demonstrate how the system performs with 10
+     * concurrent calls when none of the employees is available
+     */
     @Test
     public void test10ConcurrentCallsWithBusyEmployees(){
         LOGGER.info("starting test10ConcurrentCallsWithBusyEmployees");
@@ -103,6 +122,10 @@ public class DispatcherTest {
         }
     }
 
+    /**
+     * Unit test to demonstrate how the system performs with more
+     * than 10 concurrent calls. All of the employees are available
+     */
     @Test
     public void testMoreThan10ConcurrentCalls(){
         LOGGER.info("starting testMoreThan10ConcurrentCalls");
@@ -131,6 +154,10 @@ public class DispatcherTest {
         }
     }
 
+    /**
+     * Unit test to demonstrate how the system performs with more
+     * than 10 concurrent calls when there are not available employees
+     */
     @Test
     public void testMoreThan10ConcurrentCallsWithBusyEmployees(){
         LOGGER.info("starting testMoreThan10ConcurrentCallsWithBusyEmployees");

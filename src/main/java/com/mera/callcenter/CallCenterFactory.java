@@ -9,6 +9,9 @@ import java.util.*;
 
 import static com.mera.callcenter.entities.Call.MIN_DURATION;
 
+/**
+ * A factory pattern implementation to create objects on demand
+ */
 public class CallCenterFactory {
 
     private static final Logger LOGGER = Logger.getLogger(CallCenterFactory.class);

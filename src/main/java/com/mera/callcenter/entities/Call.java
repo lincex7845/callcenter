@@ -2,6 +2,9 @@ package com.mera.callcenter.entities;
 
 import java.util.UUID;
 
+/**
+ * It represents the call
+ */
 public class Call {
 
     private UUID id;

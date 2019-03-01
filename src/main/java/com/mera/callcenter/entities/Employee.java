@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
 
+/**
+ * It represents an employee who can answer or not a call depending on his/her availability
+ */
 public class Employee implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(Employee.class);
@@ -40,6 +43,10 @@ public class Employee implements Runnable {
         return pendingCalls;
     }
 
+    /**
+     * Synchronized method to determine if is possible to assign a call to the employee
+     * @param c incoming call
+     */
     public synchronized void assignCall(Call c) {
         if(status.equals(EmployeeStatus.AVAILABLE)){
             this.pendingCalls.add(c);
@@ -52,6 +59,9 @@ public class Employee implements Runnable {
         return answeredCalls;
     }
 
+    /**
+     * This thread simulates the call
+     */
     @Override
     public void run() {
         while (true) {
