@@ -1,12 +1,15 @@
 package com.mera.callcenter.entities;
 
-import com.mera.callcenter.domain.HandleCallStrategy;
+import com.mera.callcenter.businesslogic.HandleCallStrategy;
+import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-public class Dispatcher implements HandleCallStrategy {
+public class Dispatcher implements HandleCallStrategy, Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger(Dispatcher.class);
 
     private List<Employee> employees;
     private ConcurrentLinkedQueue<Call> callsOnHold;
@@ -17,6 +20,13 @@ public class Dispatcher implements HandleCallStrategy {
     }
 
     public synchronized void dispatchCall(Call call){
-        HandleCallStrategy.handleIncomingCall(call, employees, callsOnHold);
+        HandleCallStrategy.assignIncomingCall(call, employees, callsOnHold);
+    }
+
+    @Override
+    public void run() {
+        while(true){
+            HandleCallStrategy.assignOnHoldCalls(employees, callsOnHold);
+        }
     }
 }

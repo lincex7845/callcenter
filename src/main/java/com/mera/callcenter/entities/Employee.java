@@ -26,21 +26,29 @@ public class Employee implements Runnable {
         this.answeredCalls = new ConcurrentLinkedDeque<>();
     }
 
-
-    public EmployeeStatus getStatus() {
+    public synchronized EmployeeStatus getStatus() {
         return status;
     }
 
-    public EmployeeType getType() {
+    public synchronized void setEmployeestatus(EmployeeStatus s){ this.status = s; }
+
+    public synchronized EmployeeType getType() {
         return type;
     }
 
-    public ConcurrentLinkedQueue<Call> getPendingCalls() {
+    public synchronized ConcurrentLinkedQueue<Call> getPendingCalls() {
         return pendingCalls;
     }
 
     public synchronized void assignCall(Call c) {
-        this.pendingCalls.add(c);
+        if(status.equals(EmployeeStatus.AVAILABLE)){
+
+            //LOGGER.info(toString());
+            this.pendingCalls.add(c);
+            this.setEmployeestatus(EmployeeStatus.ON_CALL);
+            //LOGGER.info("Assigning call " + c + " to " + this.type + " - " + this.id);
+            //LOGGER.info(toString());
+        }
     }
 
     public ConcurrentLinkedDeque<Call> getAnsweredCalls() {
@@ -50,21 +58,30 @@ public class Employee implements Runnable {
     @Override
     public void run() {
         while (true) {
-            LOGGER.info(String.format("%s %s is polling for calls", this.type, this.id));
-            Optional<Call> maybeCall = Optional.of(this.pendingCalls.poll());
-            if (maybeCall.isPresent()) {
-                LOGGER.info(String.format("%s %s is answering a call", this.type, this.id));
+            LOGGER.info(String.format("%s is waiting for calls", toString()));
+            Optional<Call> maybeCall = Optional.ofNullable(this.pendingCalls.peek());
+            if (maybeCall.isPresent() && this.getStatus().equals(EmployeeStatus.ON_CALL)) {
                 Call c = maybeCall.get();
-                this.status = EmployeeStatus.BUSY;
+                this.setEmployeestatus(EmployeeStatus.BUSY);
+                //LOGGER.info(toString());
+                //LOGGER.info(String.format("%s %s is answering the call %s", this.type, this.id, c.getId()));
                 try {
                     TimeUnit.SECONDS.sleep(c.getDuration());
                 } catch (InterruptedException e) {
                     LOGGER.error(String.format("An error occurred during the call attended by %s %s", this.type, this.id), e);
                 } finally {
-                    this.status = EmployeeStatus.AVAILABLE;
+                    //LOGGER.info(String.format("The call %s last %d s", c.getId(), c.getDuration()));
+                    this.pendingCalls.poll();
+                    this.answeredCalls.add(c);
+                    this.setEmployeestatus(EmployeeStatus.AVAILABLE);
+                    //LOGGER.info(toString());
                 }
-                this.answeredCalls.add(c);
             }
         }
+    }
+
+    @Override
+    public String toString(){
+        return String.format("Employee[ID: %s, Type: %s, Status: %s, Answered: %s, Assigned: %s])", id, type, status, answeredCalls.size(), pendingCalls.size());
     }
 }
